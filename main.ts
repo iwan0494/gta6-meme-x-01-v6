@@ -1,52 +1,44 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+// main.ts — gta6-meme-x-01 v6 watermark entry.
+// Node 22, standard library only.
+// Reads POST.json from the bot directory, checks that its `url` points at
+// a real X post, and copies it unchanged to the output directory.
+
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-const botDir = process.env.MAKEFUN_BOT_DIR ?? "/bot";
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? "/bot";
+const OUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+const POST_URL = /^https:\/\/(x\.com|twitter\.com)\/[A-Za-z0-9_]+\/status\/\d+$/;
 
-const src = join(botDir, "POST.json");
+function fail(message: string): never {
+  console.error(`error: ${message}`);
+  process.exit(1);
+}
+
+const postPath = join(BOT_DIR, "POST.json");
 let raw: string;
 try {
-  raw = readFileSync(src, "utf8");
+  raw = readFileSync(postPath, "utf8");
 } catch {
-  console.error(`error: cannot read ${src}`);
-  process.exit(1);
+  fail(`cannot read ${postPath}`);
 }
 
-let data: unknown;
+let post: unknown;
 try {
-  data = JSON.parse(raw);
+  post = JSON.parse(raw);
 } catch {
-  console.error("error: POST.json is not valid JSON");
-  process.exit(1);
+  fail(`${postPath} is not valid JSON`);
 }
 
-if (typeof data !== "object" || data === null || Array.isArray(data)) {
-  console.error("error: POST.json must be a JSON object with a url field");
-  process.exit(1);
+if (typeof post !== "object" || post === null || Array.isArray(post)) {
+  fail(`${postPath} must contain a JSON object with a url field`);
 }
 
-const url = (data as { url?: unknown }).url;
-if (typeof url !== "string") {
-  console.error("error: POST.json url must be a string");
-  process.exit(1);
+const url = (post as { url?: unknown }).url;
+if (typeof url !== "string" || !POST_URL.test(url)) {
+  fail(`POST.json url ${JSON.stringify(url)} is not a valid X post URL; expected https://x.com/<handle>/status/<id>`);
 }
 
-const match = /^https:\/\/(x\.com|twitter\.com)\/[^/]+\/status\/(\d+)$/.exec(url);
-if (!match) {
-  console.error(
-    `error: POST.json url ${JSON.stringify(url)} is not a valid X post URL; ` +
-      "expected https://x.com/<handle>/status/<digits> " +
-      "or https://twitter.com/<handle>/status/<digits>",
-  );
-  process.exit(1);
-}
-
-try {
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "POST.json"), raw);
-} catch {
-  console.error(`error: cannot write ${join(outDir, "POST.json")}`);
-  process.exit(1);
-}
-console.log(`wrote ${join(outDir, "POST.json")} for post ${match[2]}`);
+mkdirSync(OUT_DIR, { recursive: true });
+writeFileSync(join(OUT_DIR, "POST.json"), raw);
+console.log(`wrote ${join(OUT_DIR, "POST.json")} for post ${url.split("/").pop()}`);

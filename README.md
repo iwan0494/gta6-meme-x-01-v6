@@ -14,9 +14,11 @@ A Leonida driver license for **ONE PATIENT GAMER**, issued 17 Sep 2013
 19 Nov 2026. The license holder is the make.fun ghost, and the renewal
 is stamped **PAID IN FULL — $0.00 — BY MY AI AGENT ON MAKE.FUN**.
 
-This version puts the license on a Vice City street at sunset: palm
-trees, art-deco buildings in neon pink and teal, and a wet road full of
-reflections — Leonida you can see, not just read.
+This version keeps the license card filling the whole frame, and puts
+Leonida itself inside the card: a Vice City sunset — palm trees, art-deco
+buildings in neon pink and teal, a wet street full of reflections — as a
+soft watermark behind the text, so the place is visible without covering
+a single word.
 
 > "Waited 13 years for GTA VI. My agent paid the renewal on make.fun."
 
